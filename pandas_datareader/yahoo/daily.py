@@ -127,16 +127,22 @@ class YahooDailyReader(_DailyBaseReader):
     # working properly
     def _get_params(self, symbol):
         # This needed because yahoo returns data shifted by 4 hours ago.
-        four_hours_in_seconds = 14400
-        #unix_start = int(time.mktime(self.start.timetuple()))
-        unix_start = (self.start - datetime.datetime(1970, 1, 1)).total_seconds()
-        unix_start += four_hours_in_seconds
-        
-        day_end = self.end.replace(hour=23, minute=59, second=59)
+        # four_hours_in_seconds = 14400
+        one_day_in_secs = 14400 * 6
 
-        #unix_end = int(time.mktime(day_end.timetuple()))
-        unix_end = (day_end - datetime.datetime(1970, 1, 1)).total_seconds()
-        unix_end += four_hours_in_seconds
+        # Some date hacks to get this running to see how it works. Will probably need to rethink how to use pandas-dr
+        # unix_start = int(time.mktime(self.start.timetuple()))
+        dt_begins = to_datetime(datetime(1970, 1, 1, tzinfo=timezone.utc))
+        dt_ss = to_datetime(datetime(self.start.year, self.start.month, self.start.day, tzinfo=timezone.utc))
+        unix_start = int((dt_ss - dt_begins).total_seconds())
+        # unix_start += four_hours_in_seconds
+
+        day_end = self.end.replace(hour=23, minute=59, second=59)
+        # unix_end = int(time.mktime(day_end.timetuple()))
+        dt_ee = to_datetime(datetime(day_end.year, day_end.month, day_end.day, tzinfo=timezone.utc))
+        unix_end = int((dt_ee - dt_begins).total_seconds())
+        # unix_end += four_hours_in_seconds
+        unix_end += one_day_in_secs
 
         params = {
             "period1": unix_start,
