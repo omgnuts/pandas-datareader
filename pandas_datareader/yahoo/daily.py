@@ -3,7 +3,7 @@ from __future__ import division
 import json
 import re
 import time
-import datetime
+from datetime import datetime, timezone
 
 from pandas import DataFrame, isnull, notnull, to_datetime
 
